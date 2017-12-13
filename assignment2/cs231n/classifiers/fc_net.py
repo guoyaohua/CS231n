@@ -258,10 +258,8 @@ class FullyConnectedNet(object):
                                                                 self.params["W%d"%(layer_idx+1)], self.params["b%d"%(layer_idx+1)])
             #Batch Normalization
             if self.use_batchnorm:
-                E_out = out.mean()
-                V_out = out.std()
-                out = (out - E_out)/V_out
-                out = self.params["gamma%d"%(i+1)]*out+self.params["beta%d"%(i+1)]
+                out,cache["BN%d"%(layer_idx + 1)] = batchnorm_forward(out, self.params["gamma%d"%(layer_idx+1)], self.params["beta%d"%(layer_idx+1)],self.bn_params[layer_idx])
+                #print("BN%d"%(layer_idx + 1))
             #Relu
             out, cache["relu%d"%(layer_idx+1)] = relu_forward(out)
             #drop out
@@ -304,6 +302,10 @@ class FullyConnectedNet(object):
         for layer_idx in range(self.num_layers - 1):
             #relu
             dout = relu_backward(dout, cache["relu%d"%(self.num_layers - 1 - layer_idx)])
+            #Batch Normalization
+            if self.use_batchnorm:
+                dout, grads["gamma%d"%(self.num_layers- 1 -layer_idx)], grads["beta%d"%(self.num_layers- 1 -layer_idx)] = batchnorm_backward_alt(dout, cache["BN%d"%(self.num_layers - 1 - layer_idx)])    
+            #print("BN%d"%(self.num_layers - 1 - layer_idx)
             #affine
             dout, grads["W%d"%(self.num_layers- 1-layer_idx)], grads["b%d"%(self.num_layers- 1 -layer_idx)] = affine_backward(dout,cache["affine%d"%(self.num_layers - 1 -layer_idx)])
             

@@ -275,13 +275,23 @@ def batchnorm_backward_alt(dout, cache):
     # should be able to compute gradients with respect to the inputs in a     #
     # single statement; our implementation fits on a single 80-character line.#
     ###########################################################################
-    gamma, x, sample_mean, sample_var, eps, x_hat = cache 
+    # gamma, x, sample_mean, sample_var, eps, x_hat = cache 
+    # N = x.shape[0]
+    # dgamma = np.sum(dout * x_hat,axis = 0)
+    # dbeta = np.sum(dout,axis = 0)
+    # dx = dout * ((((1-1/N)+2*(x-sample_mean)*((1-N)/N))*(1/(2*np.sqrt(sample_var))))/sample_var)
+    # print(dx.shape)
+    # print (x.shape)
+    gamma, x, sample_mean, sample_var, eps, x_hat = cache
     N = x.shape[0]
-    dgamma = np.sum(dout * x_hat,axis = 0)
-    dbeta = np.sum(dout,axis = 0)
-    dx = dout * ((((1-1/N)+2*(x-sample_mean)*((1-N)/N))*(1/(2*np.sqrt(sample_var))))/sample_var)
-    print(dx.shape)
-    print (x.shape)
+    dx_hat = dout * gamma
+    dvar = np.sum(dx_hat* (x - sample_mean) * -0.5 * np.power(sample_var + eps, -1.5), axis = 0)
+    dmean = np.sum(dx_hat * -1 / np.sqrt(sample_var +eps), axis = 0) + dvar * np.mean(-2 * (x - sample_mean), axis =0)
+    dx = 1 / np.sqrt(sample_var + eps) * dx_hat + dvar * 2.0 / N * (x-sample_mean) + 1.0 / N * dmean
+    dgamma = np.sum(x_hat * dout, axis = 0)
+    dbeta = np.sum(dout , axis = 0)
+    
+    
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -320,7 +330,9 @@ def dropout_forward(x, dropout_param):
         # TODO: Implement training phase forward pass for inverted dropout.   #
         # Store the dropout mask in the mask variable.                        #
         #######################################################################
-        pass
+        #musk = np.random.rand(*x.shape) >= p
+        mask = (np.random.rand(*x.shape) >= p) / (1 - p)
+        out =x * mask
         #######################################################################
         #                           END OF YOUR CODE                          #
         #######################################################################
@@ -328,7 +340,7 @@ def dropout_forward(x, dropout_param):
         #######################################################################
         # TODO: Implement the test phase forward pass for inverted dropout.   #
         #######################################################################
-        pass
+        out = x
         #######################################################################
         #                            END OF YOUR CODE                         #
         #######################################################################
@@ -355,7 +367,7 @@ def dropout_backward(dout, cache):
         #######################################################################
         # TODO: Implement training phase backward pass for inverted dropout   #
         #######################################################################
-        pass
+        dx = dout * mask
         #######################################################################
         #                          END OF YOUR CODE                           #
         #######################################################################
