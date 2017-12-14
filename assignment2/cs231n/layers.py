@@ -330,7 +330,13 @@ def dropout_forward(x, dropout_param):
         # TODO: Implement training phase forward pass for inverted dropout.   #
         # Store the dropout mask in the mask variable.                        #
         #######################################################################
+<<<<<<< HEAD
         pass
+=======
+        #musk = np.random.rand(*x.shape) >= p
+        mask = (np.random.rand(*x.shape) >= p) / (1 - p)
+        out =x * mask
+>>>>>>> d3a3f09b45da162596eafe9356466d7e750f3d6a
         #######################################################################
         #                           END OF YOUR CODE                          #
         #######################################################################
@@ -338,7 +344,11 @@ def dropout_forward(x, dropout_param):
         #######################################################################
         # TODO: Implement the test phase forward pass for inverted dropout.   #
         #######################################################################
+<<<<<<< HEAD
         pass
+=======
+        out = x
+>>>>>>> d3a3f09b45da162596eafe9356466d7e750f3d6a
         #######################################################################
         #                            END OF YOUR CODE                         #
         #######################################################################
@@ -365,7 +375,11 @@ def dropout_backward(dout, cache):
         #######################################################################
         # TODO: Implement training phase backward pass for inverted dropout   #
         #######################################################################
+<<<<<<< HEAD
         pass
+=======
+        dx = dout * mask
+>>>>>>> d3a3f09b45da162596eafe9356466d7e750f3d6a
         #######################################################################
         #                          END OF YOUR CODE                           #
         #######################################################################
