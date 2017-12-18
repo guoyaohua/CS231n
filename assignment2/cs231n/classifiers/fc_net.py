@@ -271,7 +271,7 @@ class FullyConnectedNet(object):
             out, cache["relu%d"%(layer_idx+1)] = relu_forward(out)
             #drop out
             if self.use_dropout:
-                pass
+                out, cache["DropOut%d"%(layer_idx + 1)] = dropout_forward(out, self.dropout_param)
 
             layer_input = out 
         
@@ -307,6 +307,9 @@ class FullyConnectedNet(object):
         dout, grads["W%d"%(self.num_layers)], grads["b%d"%(self.num_layers)] = affine_backward(dS, cache["affine%d"%(self.num_layers)])
         
         for layer_idx in range(self.num_layers - 1):
+            #drop out
+            if self.use_dropout:
+                dout = dropout_backward(dout, cache["DropOut%d"%(self.num_layers - 1 - layer_idx)])           
             #relu
             dout = relu_backward(dout, cache["relu%d"%(self.num_layers - 1 - layer_idx)])
 <<<<<<< HEAD
